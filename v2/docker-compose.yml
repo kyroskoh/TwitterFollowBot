@@ -1,0 +1,128 @@
+version: '3.8'
+
+services:
+  # X Follow Bot application
+  x-follow-bot:
+    build: .
+    container_name: x-follow-bot
+    restart: unless-stopped
+    environment:
+      - X_API_CLIENT_ID=${X_API_CLIENT_ID}
+      - X_API_CLIENT_SECRET=${X_API_CLIENT_SECRET}
+      - X_API_BEARER_TOKEN=${X_API_BEARER_TOKEN}
+      - DATABASE_URL=postgresql://xbot:xbot_password@postgres:5432/xbot
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_ENABLED=true
+      - LOGGING_LEVEL=INFO
+      - ENVIRONMENT=production
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - xbot-network
+    # Default command - override as needed
+    command: ["x-follow-bot", "bot", "run", "--duration", "1440"]
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: x-follow-bot-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=xbot
+      - POSTGRES_USER=xbot
+      - POSTGRES_PASSWORD=xbot_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - xbot-network
+    ports:
+      - "5432:5432"  # Expose for debugging (remove in production)
+
+  # Redis cache
+  redis:
+    image: redis:7-alpine
+    container_name: x-follow-bot-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - xbot-network
+    ports:
+      - "6379:6379"  # Expose for debugging (remove in production)
+
+  # Optional: Web interface (if implemented)
+  web:
+    build: .
+    container_name: x-follow-bot-web
+    restart: unless-stopped
+    environment:
+      - X_API_CLIENT_ID=${X_API_CLIENT_ID}
+      - X_API_CLIENT_SECRET=${X_API_CLIENT_SECRET}
+      - DATABASE_URL=postgresql://xbot:xbot_password@postgres:5432/xbot
+      - REDIS_URL=redis://redis:6379/0
+      - WEB_ENABLED=true
+      - WEB_HOST=0.0.0.0
+      - WEB_PORT=8000
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - xbot-network
+    ports:
+      - "8000:8000"
+    command: ["x-follow-bot", "web", "start"]
+    profiles:
+      - web  # Only start with --profile web
+
+  # Optional: Monitoring with Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: x-follow-bot-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - xbot-network
+    ports:
+      - "9090:9090"
+    profiles:
+      - monitoring
+
+  # Optional: Visualization with Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: x-follow-bot-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - xbot-network
+    ports:
+      - "3000:3000"
+    profiles:
+      - monitoring
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  xbot-network:
+    driver: bridge

@@ -1,0 +1,101 @@
+# X Follow Bot v2.0 Configuration Example
+# Copy this file to config.yaml and customize for your needs
+
+# X API v2 Configuration
+x_api:
+  client_id: "your_client_id_here"
+  client_secret: "your_client_secret_here" 
+  bearer_token: "optional_bearer_token_here"
+  redirect_uri: "http://localhost:8080/callback"
+  
+  # Rate limiting settings
+  requests_per_window: 300
+  window_size_minutes: 15
+
+# Bot Behavior Configuration
+bot:
+  # Follow limits (be conservative to avoid getting banned)
+  max_follows_per_hour: 50
+  max_follows_per_day: 400
+  
+  # Interaction limits
+  max_likes_per_hour: 100
+  max_retweets_per_hour: 50
+  
+  # Search configuration
+  search_keywords:
+    - "python"
+    - "#programming"
+    - "#machinelearning"
+    - "#ai"
+  
+  exclude_keywords:
+    - "spam"
+    - "scam"
+    - "crypto"
+    - "nft"
+  
+  search_languages:
+    - "en"
+  
+  # User filtering criteria
+  min_followers: 10
+  max_followers: 100000
+  min_follower_ratio: 0.1
+  
+  # Protected users (never unfollow these)
+  users_keep_following:
+    # - 12345  # Add user IDs here
+    # - 67890
+  
+  users_keep_muted: []
+  users_keep_unmuted: []
+  
+  # Blacklisted users and keywords
+  blacklisted_users: []
+  blacklisted_keywords:
+    - "spam"
+    - "scam"
+    - "fake"
+  
+  # Timing between actions (seconds)
+  follow_backoff_min_seconds: 30
+  follow_backoff_max_seconds: 120
+  
+  # Safety features
+  enable_safety_checks: true
+  enable_bot_detection: true
+  respect_rate_limits: true
+
+# Database Configuration
+database:
+  url: "sqlite:///x_follow_bot.db"  # Use SQLite for simple setups
+  # url: "postgresql://user:password@localhost:5432/xbot"  # Use PostgreSQL for production
+  echo: false
+  pool_size: 5
+  max_overflow: 10
+
+# Redis Cache Configuration (optional but recommended)
+redis:
+  url: "redis://localhost:6379/0"
+  enabled: false  # Set to true if you have Redis running
+  ttl: 3600  # Cache TTL in seconds
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "json"  # json or text
+  file_path: "logs/bot.log"
+  max_file_size: "10MB"
+  backup_count: 5
+
+# Web Interface Configuration (optional)
+web:
+  enabled: false
+  host: "127.0.0.1"
+  port: 8000
+  secret_key: "change-this-secret-key"
+
+# Environment Configuration
+environment: "development"  # development or production
+debug: false

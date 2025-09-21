@@ -1,0 +1,1 @@
+"""Test suite for X Follow Bot v2.0."""

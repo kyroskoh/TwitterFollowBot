@@ -1,0 +1,1 @@
+"""Data models for X Follow Bot."""
