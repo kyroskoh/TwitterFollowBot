@@ -1,225 +1,208 @@
-#Twitter Bot
+# TwitterFollowBot
 
-A Python bot that automates several actions on Twitter, such as following users and favoriting tweets.
+A Python bot that automates several actions on X (Twitter), such as following users and favoriting tweets.
 
-##Notice: Repository is no longer being maintained
+## 🚨 Important Update: v2.0 Available!
 
-Twitter has started cracking down heavily on users who use bots like this one to follow users or favorite tweets en masse. For that reason, I am no longer developing this code repository but will leave it up for anyone who wants to use it as a code base for future projects. Please respect the [software license](https://github.com/rhiever/TwitterFollowBot/blob/master/LICENSE) if you use the code from this repository.
+**TwitterFollowBot v2.0** is now available with full **X API v2 support**! The new version includes:
 
-##Disclaimer
+- ✅ **X API v2 Integration** with OAuth 2.0
+- ✅ **Modern Python 3.11+** with async/await
+- ✅ **Database Storage** (SQLite/PostgreSQL)
+- ✅ **Rich CLI Interface** with progress bars
+- ✅ **Docker Support** for easy deployment
+- ✅ **Advanced Safety Features** and bot detection
+- ✅ **Comprehensive Documentation** and migration guides
 
-I hold no liability for what you do with this bot or what happens to you by using this bot. Abusing this bot *can* get you banned from Twitter, so make sure to read up on [proper usage](https://support.twitter.com/articles/76915-automation-rules-and-best-practices) of the Twitter API.
+### 🚀 Get Started with v2.0
 
-##Installation
+```bash
+# Navigate to v2 directory
+cd v2
 
-You can install the Twitter Follow Bot using `pip`:
+# Install dependencies
+pip install -e .
 
-    pip install TwitterFollowBot
+# Create configuration
+x-follow-bot config create
 
-##Dependencies
+# Initialize database
+x-follow-bot database init
 
-You will need to install Python's [python-twitter](https://github.com/sixohsix/twitter/) library:
+# Start using the bot
+x-follow-bot bot follow --keywords python ai --max-follows 10
+```
 
-    pip install twitter
+**📖 Full Documentation**: See [`v2/README.md`](v2/README.md) for complete v2.0 documentation.
 
-Although this library should be installed along with the Twitter Follow Bot if you used `pip`.
+**🔄 Migration Guide**: See [`v2/MIGRATION.md`](v2/MIGRATION.md) for migrating from v1.x to v2.0.
 
-You will also need to create an app account on https://dev.twitter.com/apps
+---
+
+## v1.x (Legacy Version)
+
+> **⚠️ Notice**: The v1.x version uses deprecated Twitter API v1.1 and is no longer actively maintained. We strongly recommend upgrading to v2.0 for continued functionality and support.
+
+### Legacy Installation
+
+You can still install the legacy version using `pip`:
+
+```bash
+pip install TwitterFollowBot
+```
+
+### Legacy Dependencies
+
+The legacy version requires Python's [python-twitter](https://github.com/sixohsix/twitter/) library:
+
+```bash
+pip install twitter
+```
+
+**Note**: This library should be installed automatically if you used `pip` to install TwitterFollowBot.
+
+### Legacy API Setup
+
+You'll need to create an app account on the legacy Twitter Developer portal:
 
 1. Sign in with your Twitter account
-2. Create a new app account
+2. Create a new app account  
 3. Modify the settings for that app account to allow read & write
 4. Generate a new OAuth token with those permissions
 
-Following these steps will create 4 tokens that you will need to place in the configuration file discussed below.
+This will create 4 tokens that you'll need for the legacy configuration.
 
-##Usage
+### Legacy Configuration
 
-###Configuring the bot
+Create a `config.txt` file with the following format:
 
-Before running the bot, you must first set it up so it can connect to the Twitter API. Create a config.txt file and fill in the following information:
+```
+OAUTH_TOKEN:your_oauth_token
+OAUTH_SECRET:your_oauth_secret
+CONSUMER_KEY:your_consumer_key
+CONSUMER_SECRET:your_consumer_secret
+TWITTER_HANDLE:your_twitter_handle
+ALREADY_FOLLOWED_FILE:already-followed.txt
+FOLLOWERS_FILE:followers.txt
+FOLLOWS_FILE:following.txt
+USERS_KEEP_FOLLOWING:
+USERS_KEEP_UNMUTED:
+USERS_KEEP_MUTED:
+FOLLOW_BACKOFF_MIN_SECONDS:10
+FOLLOW_BACKOFF_MAX_SECONDS:60
+```
 
-    OAUTH_TOKEN:
-    OAUTH_SECRET:
-    CONSUMER_KEY:
-    CONSUMER_SECRET:
-    TWITTER_HANDLE:
-    ALREADY_FOLLOWED_FILE:already-followed.txt
-    FOLLOWERS_FILE:followers.txt
-    FOLLOWS_FILE:following.txt
-    USERS_KEEP_FOLLOWING:
-    USERS_KEEP_UNMUTED:
-    USERS_KEEP_MUTED:
-    FOLLOW_BACKOFF_MIN_SECONDS:10
-    FOLLOW_BACKOFF_MAX_SECONDS:60
-    
-`OAUTH_TOKEN`, `OAUTH_SECRET`, `CONSUMER_KEY`, `CONSUMER_SECRET` are your API keys that you received from creating your app account. `TWITTER_HANDLE` is your Twitter name, case-sensitive.
+### Legacy Usage Examples
 
-You can change the `FILE` entries if you want to store that information in a specific location on your computer. By default, the files will be created in your current directory.
+```python
+from TwitterFollowBot import TwitterBot
 
-Add comma-separated Twitter user IDs to the `USERS_KEEP` entries to:
+# Create bot instance
+my_bot = TwitterBot()
 
-* `USERS_KEEP_FOLLOWING`: Keep following these users even if they don't follow you back.
+# Follow users based on keywords
+my_bot.auto_follow("python")
+my_bot.auto_follow("#machinelearning")
 
-* `USERS_KEEP_UNMUTED`: Keep these users unmuted (i.e., you receive a mobile notification when they tweet)
+# Follow followers
+my_bot.auto_follow_followers()
 
-* `USERS_KEEP_MUTED`: Keep these users muted (i.e., you don't receive a mobile notification when they tweet)
+# Like tweets
+my_bot.auto_fav("artificial intelligence", count=100)
 
-For example:
+# Retweet
+my_bot.auto_rt("#python", count=50)
 
-    ...
-    FOLLOWS_FILE:following.txt
-    USERS_KEEP_FOLLOWING:1234,1235,1236
-    USERS_KEEP_UNMUTED:
-    ...
-    
-You can look up a users' Twitter ID [here](http://tweeterid.com/).
+# Unfollow non-followers
+my_bot.auto_unfollow_nonfollowers()
 
-###Create an instance of the bot
+# Post a tweet
+my_bot.send_tweet("Hello from TwitterFollowBot!")
+```
 
-To create an instance of the bot:
+### Legacy Features
 
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    
-By default, the bot will look for a configuration file called `config.txt` in your current directory.
-    
-If you want to use a different configuration file, pass the configuration file to the bot as follows:
+The legacy version supports:
 
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot("my-other-bot-config.txt")
-    
-Note that this allows you to run multiple instances of the bot with different configurations, for example if you run multiple Twitter accounts:
+- ✅ Automatically follow users based on keywords/hashtags
+- ✅ Follow users who follow you back
+- ✅ Follow followers of specific users
+- ✅ Automatically favorite/like tweets with specific phrases
+- ✅ Automatically retweet tweets with specific phrases
+- ✅ Unfollow users who don't follow back
+- ✅ Mute/unmute functionality
+- ✅ Post tweets
+- ✅ Add users to lists
+- ✅ Local caching of followers/following
 
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    my_other_bot = TwitterBot("my-other-bot-config.txt")
+## 🔄 Comparison: v1.x vs v2.0
 
-###Syncing your Twitter following locally
+| Feature | v1.x (Legacy) | v2.0 (Modern) |
+|---------|---------------|---------------|
+| **API** | Twitter v1.1 (deprecated) | X API v2 (current) |
+| **Authentication** | OAuth 1.0a | OAuth 2.0 + PKCE |
+| **Python Version** | 2.7/3.3+ | 3.11+ |
+| **Performance** | Synchronous | Async/await |
+| **Storage** | Text files | Database (SQLite/PostgreSQL) |
+| **Configuration** | config.txt | YAML/JSON + validation |
+| **CLI** | None | Rich CLI with progress bars |
+| **Safety Features** | Basic | Advanced (bot detection, etc.) |
+| **Error Handling** | Basic | Comprehensive with retries |
+| **Rate Limiting** | Manual | Intelligent with backoff |
+| **Monitoring** | None | Built-in analytics |
+| **Testing** | None | Comprehensive test suite |
+| **Deployment** | Manual setup | Docker ready |
+| **Documentation** | Basic | Comprehensive |
 
-Due to Twitter API rate limiting, the bot must maintain a local cache of all of your followers so it doesn't use all of your API time looking up your followers. It is highly recommended to sync the bot's local cache daily:
+## ⚠️ Disclaimer
 
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    my_bot.sync_follows()
-    
-The bot will create cache files where you specified in the configuration file.
-    
-**DO NOT** delete the cache files ("followers.txt", "follows.txt", and "already-followed.txt" by default) unless you want to start the bot over with a fresh cache.
+I hold no liability for what you do with this bot or what happens to you by using this bot. Abusing this bot *can* get you banned from X/Twitter, so make sure to read up on [proper usage](https://help.twitter.com/en/rules-and-policies/twitter-automation) of the X API.
 
-###Automating Twitter actions with the bot
+**Important**: Always respect X's Terms of Service and rate limits. Use the bot responsibly and ethically.
 
-This bot has several functions for programmatically interacting with Twitter:
+## 📋 Recommendations
 
-####Automatically follow any users that tweet something with a specific phrase
+### For New Users
+- **Use v2.0**: Start with the modern v2.0 version for the best experience
+- **X API v2**: Get X API v2 credentials from the [X Developer Portal](https://developer.twitter.com/)
+- **Read Documentation**: Follow the comprehensive v2.0 documentation
 
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    my_bot.auto_follow("phrase")
-    
-You can also search based on hashtags:
+### For Existing Users
+- **Upgrade to v2.0**: The legacy version will eventually stop working
+- **Migration Guide**: Follow the step-by-step migration guide
+- **Backup Data**: Export your existing followers/following data before migrating
 
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    my_bot.auto_follow("#hashtag")
-  
-By default, the bot looks up the 100 most recent tweets. You can change this number with the `count` parameter:
+## 🆘 Getting Help
 
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    my_bot.auto_follow("phrase", count=1000)
-    
-####Automatically follow any users that have followed you
+### For v2.0 Issues
+- 📖 Read the [v2.0 Documentation](v2/README.md)
+- 🔄 Check the [Migration Guide](v2/MIGRATION.md)
+- 🐛 [File an Issue](https://github.com/kyroskoh/TwitterFollowBot/issues) with the `v2.0` label
 
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    my_bot.auto_follow_followers()
+### For Legacy v1.x Issues
+- 🐛 [File an Issue](https://github.com/kyroskoh/TwitterFollowBot/issues) with the `v1.x` label
+- ⚠️ Note: v1.x is in maintenance mode only
 
-####Automatically follow any users that follow a user
-    
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot() 
-    my_bot.auto_follow_followers_of_user("jack", count=1000)
+**Please check existing issues before creating new ones!**
 
-####Automatically favorite any tweets that have a specific phrase
+## 📄 License
 
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    my_bot.auto_fav("phrase", count=1000)
-    
-####Automatically retweet any tweets that have a specific phrase
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
 
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    my_bot.auto_rt("phrase", count=1000)
+## 🏗️ Project Status
 
-####Automatically unfollow any users that have not followed you back
+- **v1.x**: Maintenance mode (bug fixes only)
+- **v2.0**: Active development and support
 
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    my_bot.auto_unfollow_nonfollowers()
-  
-If there are certain users that you would like to not unfollow, add their user id to the USERS_KEEP_FOLLOWING list.
+## 🙏 Contributing
 
-You will need to manually edit the code if you want to add special users that you will keep following even if they don't follow you back.
+Contributions are welcome! Please focus on v2.0 development:
 
-####Automatically unfollow all users.
+1. Fork the repository
+2. Work in the `v2/` directory
+3. Follow the development guidelines in `v2/README.md`
+4. Submit a pull request
 
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    my_bot.auto_unfollow_all_followers()
-  
+---
 
-
-####Automatically mute all users that you have followed
-
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    my_bot.auto_mute_following()
-
-You will need to manually edit the code if you want to add special users that you will not mute.
-
-####Automatically unmute everyone you have muted
-
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    my_bot.auto_unmute()
-    
-You will need to manually edit the code if you want to add special users that will remain muted. 
-
-####Post a tweet on twitter
-
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    my_bot.send_tweet("Hello world!")
-
-####Automatically add users tweeting about something to one of your list
-
-    from TwitterFollowBot import TwitterBot
-    
-    my_bot = TwitterBot()
-    my_bot.auto_add_to_list("#TwitterBot", "twitterbot-list", count=10)
-    
-In the example above, the bot will try to add 10 users to the twitterbot-list that are tweeting #TwitterBot.
-
-Remember that the max number of users in a list is 5000.
-    
-##Have questions? Need help with the bot?
-
-If you're having issues with or have questions about the bot, [file an issue](https://github.com/rhiever/TwitterFollowBot/issues) in this repository so one of the project managers can get back to you. **Please [check the existing (and closed) issues](https://github.com/rhiever/TwitterFollowBot/issues?q=is%3Aissue) to make sure your issue hasn't already been addressed.**
+**TwitterFollowBot** - Automating X (Twitter) interactions since 2015, now modernized for 2025+ 🚀
